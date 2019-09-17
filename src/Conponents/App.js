@@ -1,10 +1,13 @@
-import React, { Component } from 'react';
+/* eslint-disable react/prop-types */
+import React from 'react';
 import styled from 'styled-components';
-import shortid from 'shortid';
+import { connect } from 'react-redux';
 import BudgetForm from './BudgetForm';
 import ExpenseForm from './ExpenseForm';
 import ExpensesTable from './ExpensesTable';
 import Values from './Values';
+import * as budgetSelectors from '../Redux/Budget/budgetSelectors';
+import * as budgetActions from '../Redux/Budget/budgetActtions';
 
 const Container = styled.div`
   display: grid;
@@ -18,54 +21,43 @@ const Container = styled.div`
   margin-right: auto;
 `;
 
-const calculateTotalExpenses = expenses => {
-  return expenses.reduce((total, expense) => total + expense.amount, 0);
+const App = ({
+  budget,
+  expenses,
+  balance,
+  expensesLength,
+  totalExpenses,
+  saveBudget,
+  addExpense,
+  removeExpence,
+}) => {
+  return (
+    <Container>
+      <BudgetForm onSave={saveBudget} />
+      <Values budget={budget} expenses={totalExpenses} balance={balance} />
+      <ExpenseForm onSave={addExpense} />
+      {expensesLength > 0 && (
+        <ExpensesTable items={expenses} onRemove={removeExpence} />
+      )}
+    </Container>
+  );
 };
 
-const calculateBalance = (budget, expenses) => budget - expenses;
+const mapStateToProps = store => ({
+  budget: budgetSelectors.getBudget(store),
+  totalExpenses: budgetSelectors.totalExpenses(store),
+  expenses: budgetSelectors.getExpenses(store),
+  balance: budgetSelectors.getBalance(store),
+  expensesLength: budgetSelectors.getExpensesLength(store),
+});
 
-export default class App extends Component {
-  state = {
-    budget: 0,
-    expenses: [],
-  };
+const mapDispatchToProps = dispatch => ({
+  saveBudget: budget => dispatch(budgetActions.saveBudget(budget)),
+  addExpense: obj => dispatch(budgetActions.addExpense(obj)),
+  removeExpence: id => dispatch(budgetActions.removeExpence(id)),
+});
 
-  saveBudget = value => {
-    this.setState({ budget: value });
-  };
-
-  addExpense = ({ name, amount }) => {
-    const expense = {
-      id: shortid.generate(),
-      name,
-      amount: Number(amount),
-    };
-
-    this.setState(state => ({
-      expenses: [expense, ...state.expenses],
-    }));
-  };
-
-  removeExpense = id => {
-    this.setState(state => ({
-      expenses: state.expenses.filter(expense => expense.id !== id),
-    }));
-  };
-
-  render() {
-    const { expenses, budget } = this.state;
-    const totalExpenses = calculateTotalExpenses(expenses);
-    const balance = calculateBalance(budget, totalExpenses);
-
-    return (
-      <Container>
-        <BudgetForm onSave={this.saveBudget} />
-        <Values budget={budget} expenses={totalExpenses} balance={balance} />
-        <ExpenseForm onSave={this.addExpense} />
-        {expenses.length > 0 && (
-          <ExpensesTable items={expenses} onRemove={this.removeExpense} />
-        )}
-      </Container>
-    );
-  }
-}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(App);

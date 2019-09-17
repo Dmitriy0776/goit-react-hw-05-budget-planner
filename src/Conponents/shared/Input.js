@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import styled from 'styled-components';
 
@@ -10,14 +11,13 @@ const StyledInput = styled.input`
   border: 1px solid #bdbdbd;
   width: 100%;
   outline: 0;
-
   &:focus {
     border: 1px solid #2b32b2;
   }
 `;
 
 const Input = ({
-  type = ' text',
+  type = 'text',
   value = '',
   onChange = () => null,
   name = '',

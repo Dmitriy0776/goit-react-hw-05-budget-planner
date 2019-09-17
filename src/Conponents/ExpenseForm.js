@@ -1,4 +1,7 @@
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
 import React, { Component } from 'react';
+import shortid from 'shortid';
 import Form from './shared/Form';
 import Label from './shared/Label';
 import Input from './shared/Input';
@@ -25,6 +28,7 @@ export default class ExpenseForm extends Component {
 
     this.props.onSave({
       ...this.state,
+      id: shortid.generate(),
     });
 
     this.setState({ name: '', amount: 0 });
